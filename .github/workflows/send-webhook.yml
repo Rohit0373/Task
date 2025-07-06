@@ -1,0 +1,25 @@
+name: Send Webhook on Push or PR
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, closed]
+
+jobs:
+  send_webhook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send webhook to Flask app
+        run: |
+          curl -X POST https://85ea-2409-40c4-2023-6f40-212c-7b25-7210-7c53.ngrok-free.app/webhook \
+          -H "Content-Type: application/json" \
+          -d '{
+                "request_id": "auto-${{ github.run_id }}",
+                "author": "${{ github.actor }}",
+                "action": "${{ github.event_name }}",
+                "from_branch": "${{ github.head_ref || github.ref }}",
+                "to_branch": "main",
+                "timestamp": "${{ github.event.head_commit.timestamp }}"
+              }'
